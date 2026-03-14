@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BENCHCORE — PCパーツ性能比較</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b10;
+  --surface: #0d1117;
+  --surface2: #161b22;
+  --surface3: #1c2330;
+  --border: #21262d;
+  --border2: #2d333b;
+  --accent: #f78166;
+  --accent2: #58a6ff;
+  --accent3: #3fb950;
+  --accent4: #d2a8ff;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --text3: #484f58;
+  --gold: #ffd700;
+  --silver: #c0c0c0;
+  --bronze: #cd7f32;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NOISE TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(8,11,16,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  height: 56px;
+  gap: 0;
+}
+
+.logo {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo span { color: var(--accent); }
+
+.nav-links {
+  display: flex;
+  gap: 0;
+  flex: 1;
+}
+
+.nav-link {
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.nav-link:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-link.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+.nav-badge {
+  font-size: 9px;
+  padding: 2px 5px;
+  background: var(--accent);
+  color: #000;
+  border-radius: 3px;
+  margin-left: 6px;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+}
+
+/* PAGES */
+.page { display: none; padding-top: 56px; min-height: 100vh; position: relative; z-index: 1; }
+.page.active { display: block; }
+
+/* HERO */
+.hero {
+  padding: 80px 40px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(247,129,102,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s forwards;
+}
+
+.hero h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(42px, 7vw, 80px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.2s forwards;
+}
+.hero h1 em { color: var(--accent); font-style: normal; }
+
+.hero p {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 520px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.3s forwards;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s forwards;
+}
+.hero-stat-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.hero-stat-val span { color: var(--accent2); }
+.hero-stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+.hero-cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.5s forwards;
+}
+
+.btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  font-family: 'Noto Sans JP', sans-serif;
+  letter-spacing: 0.3px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+}
+.btn-primary:hover { background: #ff9580; transform: translateY(-1px); }
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--text2);
+}
+.btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(88,166,255,0.05); }
+
+/* SECTION */
+.section {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.section-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.section-sub { font-size: 12px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* CARDS GRID */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, transparent 60%);
+  pointer-events: none;
+}
+.card:hover {
+  border-color: var(--border2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.card-accent { border-left: 3px solid var(--accent2); }
+.card-accent-orange { border-left: 3px solid var(--accent); }
+.card-accent-green { border-left: 3px solid var(--accent3); }
+
+.card-label {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.card-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.card-arrow {
+  position: absolute;
+  top: 20px; right: 20px;
+  color: var(--text3);
+  font-size: 18px;
+  transition: all 0.2s;
+}
+.card:hover .card-arrow { color: var(--accent2); transform: translate(2px, -2px); }
+
+/* RANKING TABLE */
+.rank-table { width: 100%; border-collapse: collapse; }
+.rank-table th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+}
+.rank-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  vertical-align: middle;
+}
+.rank-table tr:last-child td { border-bottom: none; }
+.rank-table tbody tr {
+  transition: background 0.15s;
+  cursor: pointer;
+}
+.rank-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+.rank-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  width: 40px;
+  color: var(--text3);
+}
+.rank-1 { color: var(--gold); }
+.rank-2 { color: var(--silver); }
+.rank-3 { color: var(--bronze); }
+
+.chip-name {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.3;
+}
+.chip-sub { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+.score-bar-wrap { min-width: 140px; }
+.score-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.score-bar-bg { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.score-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent4));
+  transition: width 0.8s ease;
+}
+.score-bar.gpu { background: linear-gradient(90deg, var(--accent), #ff6b6b); }
+
+.price-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.badge-green { background: rgba(63,185,80,0.15); color: var(--accent3); border: 1px solid rgba(63,185,80,0.3); }
+.badge-blue { background: rgba(88,166,255,0.15); color: var(--accent2); border: 1px solid rgba(88,166,255,0.3); }
+.badge-orange { background: rgba(247,129,102,0.15); color: var(--accent); border: 1px solid rgba(247,129,102,0.3); }
+.badge-purple { background: rgba(210,168,255,0.15); color: var(--accent4); border: 1px solid rgba(210,168,255,0.3); }
+
+.affiliate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  background: transparent;
+  border-color: var(--border2);
+  color: var(--text2);
+}
+.affiliate-btn:hover { border-color: var(--accent3); color: var(--accent3); background: rgba(63,185,80,0.05); }
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  transition: all 0.2s;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.filter-btn:hover, .filter-btn.active {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #000;
+  font-weight: 600;
+}
+
+/* COMPARE TABLE */
+.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table th {
+  padding: 14px 20px;
+  text-align: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+}
+.compare-table th.label-col {
+  text-align: left;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  width: 160px;
+}
+.compare-table td {
+  padding: 12px 20px;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-size: 13px;
+  vertical-align: middle;
+}
+.compare-table td.label-col {
+  text-align: left;
+  font-size: 11px;
+  color: var(--text2);
+  background: var(--surface2);
+}
+.compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+.compare-table tr:nth-child(even) td.label-col { background: var(--surface2); }
+
+.best-val { color: var(--accent3); font-weight: 700; }
+
+.winner-tag {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(247,129,102,0.2);
+  color: var(--accent);
+  border-radius: 3px;
+  margin-left: 6px;
+  letter-spacing: 1px;
+}
+
+/* RADAR CHART placeholder */
+.perf-visual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.perf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+.perf-card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 20px;
+}
+.perf-bars { display: flex; flex-direction: column; gap: 12px; }
+.perf-bar-row { display: flex; align-items: center; gap: 12px; }
+.perf-bar-label { font-size: 12px; color: var(--text2); width: 100px; text-align: right; flex-shrink: 0; }
+.perf-bar-track { flex: 1; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; position: relative; }
+.perf-bar-fill { height: 100%; border-radius: 4px; position: relative; }
+.perf-bar-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 70%, rgba(255,255,255,0.2)); }
+.perf-bar-pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2); width: 36px; text-align: right; flex-shrink: 0; }
+
+/* SCORE HIGHLIGHT */
+.score-highlight {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.score-highlight-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+}
+.score-highlight-label { font-size: 11px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+/* TOP LIST on home */
+.mini-rank { display: flex; flex-direction: column; gap: 6px; }
+.mini-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mini-rank-item:hover { border-color: var(--border2); }
+.mini-rank-pos {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  width: 24px;
+  color: var(--text3);
+}
+.pos-1 { color: var(--gold); }
+.pos-2 { color: var(--silver); }
+.pos-3 { color: var(--bronze); }
+.mini-rank-name { flex: 1; font-size: 13px; font-weight: 500; }
+.mini-rank-score { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent2); }
+.mini-rank-bar { width: 60px; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.mini-rank-bar-fill { height: 100%; border-radius: 2px; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 0 40px; }
+
+/* FOOTER BAND */
+.footer-band {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 60px;
+}
+.footer-logo { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 2px; }
+.footer-logo span { color: var(--accent); }
+.footer-note { font-size: 11px; color: var(--text3); }
+
+/* SHIMMER tag */
+.new-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  background: linear-gradient(90deg, var(--accent3), #58a6ff);
+  color: #000;
+  border-radius: 3px;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  background: var(--surface2);
+}
+.tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.notice {
+  padding: 12px 24px;
+  background: rgba(88,166,255,0.07);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.notice::before { content: 'ℹ'; color: var(--accent2); font-size: 14px; }
+
+/* SELECT COMPARE */
+.compare-select-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.select-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+.select-box label { font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 8px; }
+.select-box select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.select-box select:focus { border-color: var(--accent2); }
+
+/* ===== BUILDER PAGE ===== */
+#builder { background: var(--bg); }
+.builder-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 0;
+  min-height: calc(100vh - 56px);
+  max-width: 100%;
+}
+.builder-left { padding: 28px 32px; overflow-y: auto; }
+.builder-right {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow: hidden;
+}
+
+/* part sections */
+.bpart-section {
+  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.bpart-section.has-selection { border-color: var(--border2); }
+.bpart-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  cursor: pointer;
+  background: var(--surface2);
+  user-select: none;
+}
+.bpart-header:hover { background: var(--surface3); }
+.bpart-icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.bpart-cat-label { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; letter-spacing: 2px; text-transform: uppercase; display: block; }
+.bpart-cat-name { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; line-height: 1.1; }
+.bpart-sel-info { margin-left: auto; text-align: right; }
+.bpart-sel-name { font-size: 12px; color: var(--accent2); max-width: 150px; line-height: 1.3; }
+.bpart-sel-price { font-size: 11px; color: var(--gold); font-family: 'JetBrains Mono', monospace; margin-top: 1px; }
+.bpart-chevron { color: var(--text3); font-size: 11px; margin-left: 8px; transition: transform 0.25s; }
+.bpart-section.bopen .bpart-chevron { transform: rotate(180deg); }
+
+.bpart-list { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1); }
+.bpart-section.bopen .bpart-list { max-height: 700px; }
+
+.bpart-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.bpart-item:hover { background: rgba(255,255,255,0.02); }
+.bpart-item.bselected { background: rgba(88,166,255,0.05); }
+.bpart-item.bselected::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent2); }
+.bpart-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0; transition: all 0.2s; color: transparent;
+}
+.bpart-item.bselected .bpart-check { background: var(--accent2); border-color: var(--accent2); color: #000; }
+.bpart-item-name { flex: 1; }
+.bpart-item-name strong { font-size: 13px; font-weight: 500; display: block; }
+.bpart-item-name small { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.bpart-item-right { text-align: right; flex-shrink: 0; }
+.bpart-item-price { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); }
+.bpart-item-score { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* RIGHT PANEL */
+.bcart-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.bcart-title { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.bcart-count { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.bclear-btn { background: transparent; border: 1px solid var(--border2); color: var(--text2); border-radius: 5px; padding: 4px 10px; font-size: 11px; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; }
+.bclear-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.bcart-list { flex: 0 0 auto; padding: 10px 14px; border-bottom: 1px solid var(--border); max-height: 220px; overflow-y: auto; }
+.bcart-list::-webkit-scrollbar { width: 3px; }
+.bcart-list::-webkit-scrollbar-thumb { background: var(--border2); }
+.bcart-empty { text-align: center; padding: 20px; color: var(--text3); font-size: 12px; }
+
+.bcart-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  margin-bottom: 5px;
+  animation: bslideIn 0.2s ease;
+}
+@keyframes bslideIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }
+.bcart-item-cat { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; width: 28px; flex-shrink: 0; }
+.bcart-item-name { flex: 1; font-size: 11px; font-weight: 500; line-height: 1.3; }
+.bcart-item-price { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); flex-shrink: 0; }
+.bcart-item-del { width: 16px; height: 16px; border-radius: 3px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text3); font-size: 10px; transition: all 0.15s; flex-shrink: 0; }
+.bcart-item-del:hover { color: #ff6b6b; background: rgba(255,107,107,0.1); }
+
+.bcart-total { padding: 12px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.btotal-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.btotal-label { font-size: 12px; color: var(--text2); }
+.btotal-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.bgrand-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.bgrand-label { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.bgrand-val { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--gold); }
+
+.bcheck-btn {
+  margin: 12px 18px 0;
+  width: calc(100% - 36px);
+  padding: 12px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), #ff9580);
+  color: #000;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  cursor: pointer; border: none; transition: all 0.2s; flex-shrink: 0;
+}
+.bcheck-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(247,129,102,0.3); }
+.bcheck-btn:disabled { background: var(--surface3); color: var(--text3); cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* GAME RESULT PANEL */
+.bgame-result { flex: 1; overflow-y: auto; padding: 14px 18px; }
+.bgame-result::-webkit-scrollbar { width: 3px; }
+.bgame-result::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.bresult-title { font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.bresult-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.bresult-summary { padding: 10px 12px; background: var(--surface2); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 10px; }
+.bresult-tier { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+.bresult-desc { font-size: 11px; color: var(--text2); line-height: 1.6; }
+
+.btier-bar { display: flex; gap: 3px; margin-bottom: 3px; }
+.btier-seg { flex: 1; height: 5px; border-radius: 2px; background: var(--surface3); }
+.btier-seg.alow { background: var(--accent3); }
+.btier-seg.amid { background: var(--accent2); }
+.btier-seg.ahigh { background: var(--accent4); }
+.btier-seg.aultra { background: var(--gold); }
+.btier-labels { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.btier-label-sm { font-size: 9px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+.bwarn { display: flex; align-items: flex-start; gap: 6px; padding: 7px 10px; border-radius: 6px; font-size: 11px; margin-bottom: 7px; line-height: 1.5; }
+.bwarn-yellow { background: rgba(227,179,65,0.08); border: 1px solid rgba(227,179,65,0.2); color: var(--gold); }
+.bwarn-red { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: #ff6b6b; }
+
+.btier-group { margin-bottom: 10px; }
+.btier-group-label {
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 3px;
+  display: inline-block; margin-bottom: 6px; font-weight: 700;
+}
+.blabel-ultra { background: rgba(255,215,0,0.1); color: var(--gold); border: 1px solid rgba(255,215,0,0.2); }
+.blabel-high  { background: rgba(88,166,255,0.1); color: var(--accent2); border: 1px solid rgba(88,166,255,0.2); }
+.blabel-mid   { background: rgba(63,185,80,0.1); color: var(--accent3); border: 1px solid rgba(63,185,80,0.2); }
+.blabel-low   { background: rgba(139,148,158,0.1); color: var(--text2); border: 1px solid var(--border2); }
+
+.bgame-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.bgame-chip {
+  padding: 4px 9px; border-radius: 20px;
+  font-size: 11px; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text); line-height: 1.3;
+}
+.bgame-chip small { display: block; font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* builder hero */
+.builder-hero {
+  padding: 28px 0 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.builder-hero h2 { font-family: 'Rajdhani', sans-serif; font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.builder-hero h2 span { color: var(--accent); }
+.builder-hero p { font-size: 13px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">BENCH<span>CORE</span></div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showPage('home', this)">トップ</div>
+    <div class="nav-link" onclick="showPage('cpu-rank', this)">CPU ランキング</div>
+    <div class="nav-link" onclick="showPage('gpu-rank', this)">GPU ランキング</div>
+    <div class="nav-link" onclick="showPage('cpu-compare', this)">CPU 比較</div>
+    <div class="nav-link" onclick="showPage('gpu-compare', this)">GPU 比較</div>
+    <div class="nav-link" onclick="showPage('builder', this)" style="color:var(--accent);font-weight:700">🛒 PC構成ビルダー <span class="nav-badge">NEW</span></div>
+  </div>
+</nav>
+
+<!-- ===== HOME PAGE ===== -->
+<div id="home" class="page active">
+  <div class="hero">
+    <div class="hero-eyebrow">// BENCHMARK DATABASE 2024</div>
+    <h1>PCパーツの<em>性能</em>を<br>数値で比べる</h1>
+    <p>CPU・GPUのベンチマークスコア、コスパ、消費電力を一覧で比較。<br>最新データで最適なパーツ選びをサポートします。</p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val"><span>147</span></div>
+        <div class="hero-stat-label">CPU登録数</div>
+      </div>
+      <div>
+        <div class="hero-stat-val"><span>89</span></div>
+        <div class="hero-stat-label">GPU登録数</div>
+      </div>
+      <div>
+        <div class="hero-stat-val"><span>12K</span></div>
+        <div class="hero-stat-label">月間閲覧数</div>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">CPU ランキングを見る</button>
+      <button class="btn btn-secondary" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">GPU ランキングを見る</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+      <!-- CPU TOP5 -->
+      <div>
+        <div class="section-header">
+          <div class="section-title">CPU TOP 5</div>
+          <div class="section-sub">// cinebench r23 multi</div>
+        </div>
+        <div class="mini-rank" id="home-cpu-ranking">
+          <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+            <div class="mini-rank-pos pos-1">1</div>
+            <div class="mini-rank-name">読み込み中...</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:100%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+            <div class="mini-rank-score">40,015</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+            <div class="mini-rank-pos pos-2">2</div>
+            <div class="mini-rank-name">Core i9-14900K</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:90%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+            <div class="mini-rank-score">39,800</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+            <div class="mini-rank-pos pos-3">3</div>
+            <div class="mini-rank-name">Ryzen 9 7900X3D</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:85%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+            <div class="mini-rank-score">37,200</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+            <div class="mini-rank-pos">4</div>
+            <div class="mini-rank-name">Ryzen 7 7800X3D</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:78%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+            <div class="mini-rank-score">35,000</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+            <div class="mini-rank-pos">5</div>
+            <div class="mini-rank-name">Core i7-14700K</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:74%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+            <div class="mini-rank-score">34,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GPU TOP5 -->
+      <div>
+        <div class="section-header">
+          <div class="section-title">GPU TOP 5</div>
+          <div class="section-sub">// 3dmark time spy</div>
+        </div>
+        <div class="mini-rank" id="home-gpu-ranking">
+          <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+            <div class="mini-rank-pos pos-1">1</div>
+            <div class="mini-rank-name">読み込み中...</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:100%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+            <div class="mini-rank-score" style="color:var(--accent)">38,700</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+            <div class="mini-rank-pos pos-2">2</div>
+            <div class="mini-rank-name">RX 7900 XTX</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:83%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+            <div class="mini-rank-score" style="color:var(--accent)">32,000</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+            <div class="mini-rank-pos pos-3">3</div>
+            <div class="mini-rank-name">RTX 4080 Super</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:80%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+            <div class="mini-rank-score" style="color:var(--accent)">31,000</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+            <div class="mini-rank-pos">4</div>
+            <div class="mini-rank-name">RTX 4070 Ti Super</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:70%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+            <div class="mini-rank-score" style="color:var(--accent)">26,500</div>
+          </div>
+          <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+            <div class="mini-rank-pos">5</div>
+            <div class="mini-rank-name">RX 7900 XT</div>
+            <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:64%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+            <div class="mini-rank-score" style="color:var(--accent)">24,800</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- QUICK LINKS -->
+  <div class="section">
+    <div class="section-header"><div class="section-title">ページ一覧</div></div>
+    <div class="cards">
+      <div class="card card-accent" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+        <div class="card-label">CPU</div>
+        <div class="card-title">CPU 性能ランキング</div>
+        <div class="card-desc">Cinebench / PassMark スコアによる最新CPUランキング。コア数・TDP・価格も一覧表示。</div>
+        <div class="card-arrow">↗</div>
+      </div>
+      <div class="card card-accent-orange" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+        <div class="card-label">GPU</div>
+        <div class="card-title">GPU 性能ランキング</div>
+        <div class="card-desc">3DMark Time Spy による総合グラフィック性能ランキング。VRAM・消費電力も確認できます。</div>
+        <div class="card-arrow">↗</div>
+      </div>
+      <div class="card card-accent-green" onclick="showPage('cpu-compare', document.querySelectorAll('.nav-link')[3])">
+        <div class="card-label">比較</div>
+        <div class="card-title">CPU 詳細比較</div>
+        <div class="card-desc">2つのCPUを並べて比較。スコア差・コスパ・消費電力を視覚的に確認。</div>
+        <div class="card-arrow">↗</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div class="footer-logo">BENCH<span>CORE</span></div>
+    <div class="footer-note">データはGoogleスプレッドシートで管理 · 定期更新 · アフィリエイト収益で運営</div>
+  </div>
+</div>
+
+<!-- ===== CPU RANKING PAGE ===== -->
+<div id="cpu-rank" class="page">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">CPU 性能ランキング</div>
+      <div class="section-sub">// 更新: 2024-12</div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active">全て</button>
+      <button class="filter-btn" onclick="filterToggle(this)">Intel</button>
+      <button class="filter-btn" onclick="filterToggle(this)">AMD</button>
+      <button class="filter-btn" onclick="filterToggle(this)">¥5万以下</button>
+      <button class="filter-btn" onclick="filterToggle(this)">¥3万以下</button>
+      <button class="filter-btn" onclick="filterToggle(this)">コスパ重視</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'multi')">マルチスレッド</div>
+        <div class="tab" onclick="switchTab(this,'single')">シングルスレッド</div>
+        <div class="tab" onclick="switchTab(this,'cospa')">コスパ</div>
+      </div>
+
+      <div id="cpu-multi" class="tab-content active">
+        <div class="notice">Cinebench R23 マルチスレッドスコア。数値が高いほど高性能です。</div>
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>CPU名</th>
+              <th>スコア</th>
+              <th>価格</th>
+              <th>TDP</th>
+              <th>コア数</th>
+              <th>評価</th>
+              <th>購入</th>
+            </tr>
+          </thead>
+          <tbody id="cpu-table-body">
+          </tbody>
+        </table>
+      </div>
+
+      <div id="cpu-single" class="tab-content">
+        <div class="notice">Cinebench R23 シングルスレッドスコア。ゲーム性能に直結する指標です。</div>
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>CPU名</th>
+              <th>スコア</th>
+              <th>価格</th>
+              <th>TDP</th>
+              <th>評価</th>
+              <th>購入</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">データ準備中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="cpu-cospa" class="tab-content">
+        <div class="notice">スコア ÷ 価格（円）で算出したコスパランキングです。</div>
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th>順位</th>
+              <th>CPU名</th>
+              <th>コスパ指数</th>
+              <th>価格</th>
+              <th>スコア</th>
+              <th>評価</th>
+              <th>購入</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">データ準備中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div class="footer-logo">BENCH<span>CORE</span></div>
+    <div class="footer-note">価格はAmazon/価格.com参照 · スコアはBenchmark実測値</div>
+  </div>
+</div>
+
+<!-- ===== GPU RANKING PAGE ===== -->
+<div id="gpu-rank" class="page">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">GPU 性能ランキング</div>
+      <div class="section-sub">// 更新: 2024-12</div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active">全て</button>
+      <button class="filter-btn" onclick="filterToggle(this)">NVIDIA</button>
+      <button class="filter-btn" onclick="filterToggle(this)">AMD</button>
+      <button class="filter-btn" onclick="filterToggle(this)">¥10万以下</button>
+      <button class="filter-btn" onclick="filterToggle(this)">¥5万以下</button>
+      <button class="filter-btn" onclick="filterToggle(this)">コスパ重視</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="notice">3DMark Time Spy スコア。数値が高いほどゲーム性能が高いです。</div>
+      <table class="rank-table">
+        <thead>
+          <tr>
+            <th>順位</th>
+            <th>GPU名</th>
+            <th>スコア</th>
+            <th>価格</th>
+            <th>VRAM</th>
+            <th>消費電力</th>
+            <th>評価</th>
+            <th>購入</th>
+          </tr>
+        </thead>
+        <tbody id="gpu-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div class="footer-logo">BENCH<span>CORE</span></div>
+    <div class="footer-note">価格はAmazon/価格.com参照 · スコアは3DMark実測値</div>
+  </div>
+</div>
+
+<!-- ===== CPU COMPARE PAGE ===== -->
+<div id="cpu-compare" class="page">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">CPU 詳細比較</div>
+      <div class="section-sub">// 2製品を選択して比較</div>
+    </div>
+
+    <div class="compare-select-wrap">
+      <div class="select-box">
+        <label>CPU A</label>
+        <select id="cpu-a-select" onchange="updateCompare()">
+          <option value="0">Ryzen 9 7950X3D</option>
+          <option value="1">Core i9-14900K</option>
+          <option value="2">Ryzen 9 7900X3D</option>
+          <option value="3">Ryzen 7 7800X3D</option>
+          <option value="4">Core i7-14700K</option>
+          <option value="5">Ryzen 5 7600X</option>
+        </select>
+      </div>
+      <div class="select-box">
+        <label>CPU B</label>
+        <select id="cpu-b-select" onchange="updateCompare()">
+          <option value="0">Ryzen 9 7950X3D</option>
+          <option value="1" selected>Core i9-14900K</option>
+          <option value="2">Ryzen 9 7900X3D</option>
+          <option value="3">Ryzen 7 7800X3D</option>
+          <option value="4">Core i7-14700K</option>
+          <option value="5">Ryzen 5 7600X</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PERF BARS -->
+    <div class="perf-visual" id="cpu-perf-bars">
+    </div>
+
+    <!-- COMPARE TABLE -->
+    <div class="table-wrap">
+      <table class="compare-table" id="cpu-compare-table">
+      </table>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div class="footer-logo">BENCH<span>CORE</span></div>
+    <div class="footer-note">スペックはメーカー公式値 · 価格はAmazon参照</div>
+  </div>
+</div>
+
+<!-- ===== GPU COMPARE PAGE ===== -->
+<div id="gpu-compare" class="page">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">GPU 詳細比較</div>
+      <div class="section-sub">// 2製品を選択して比較</div>
+    </div>
+
+    <div class="compare-select-wrap">
+      <div class="select-box">
+        <label>GPU A</label>
+        <select id="gpu-a-select" onchange="updateGpuCompare()">
+          <option value="0">RTX 4090</option>
+          <option value="1">RX 7900 XTX</option>
+          <option value="2">RTX 4080 Super</option>
+          <option value="3">RTX 4070 Ti Super</option>
+          <option value="4">RX 7900 XT</option>
+          <option value="5">RTX 4070 Super</option>
+        </select>
+      </div>
+      <div class="select-box">
+        <label>GPU B</label>
+        <select id="gpu-b-select" onchange="updateGpuCompare()">
+          <option value="0">RTX 4090</option>
+          <option value="1" selected>RX 7900 XTX</option>
+          <option value="2">RTX 4080 Super</option>
+          <option value="3">RTX 4070 Ti Super</option>
+          <option value="4">RX 7900 XT</option>
+          <option value="5">RTX 4070 Super</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="compare-table" id="gpu-compare-table"></table>
+    </div>
+  </div>
+
+  <div class="footer-band">
+    <div class="footer-logo">BENCH<span>CORE</span></div>
+    <div class="footer-note">スペックはメーカー公式値 · 価格はAmazon参照</div>
+  </div>
+</div>
+
+<!-- ===== BUILDER PAGE ===== -->
+<div id="builder" class="page">
+  <div class="builder-layout">
+    <!-- LEFT: PART PICKER -->
+    <div class="builder-left">
+      <div class="builder-hero">
+        <h2>PC構成<span>ビルダー</span></h2>
+        <p>パーツを選ぶと合計金額と遊べるゲームが自動で表示されます</p>
+      </div>
+      <div id="bpart-picker"></div>
+    </div>
+
+    <!-- RIGHT: CART + RESULT -->
+    <div class="builder-right">
+      <div class="bcart-header">
+        <div>
+          <div class="bcart-title">構成リスト</div>
+          <div class="bcart-count" id="bcart-count">0 / 7 パーツ選択済み</div>
+        </div>
+        <button class="bclear-btn" onclick="bclearAll()">クリア</button>
+      </div>
+
+      <div class="bcart-list" id="bcart-list">
+        <div class="bcart-empty">← パーツを選んでください</div>
+      </div>
+
+      <div class="bcart-total">
+        <div class="btotal-row"><span class="btotal-label">パーツ合計</span><span class="btotal-val" id="bparts-total">¥0</span></div>
+        <div class="btotal-row"><span class="btotal-label">OS (Win11 Home)</span><span class="btotal-val">¥15,000</span></div>
+        <div style="height:1px;background:var(--border);margin:6px 0"></div>
+        <div class="bgrand-row">
+          <span class="bgrand-label">総合計</span>
+          <span class="bgrand-val" id="bgrand-total">¥15,000</span>
+        </div>
+      </div>
+      <button class="bcheck-btn" id="bcheck-btn" onclick="banalyze()">🎮 ゲーム性能をチェック</button>
+
+      <div class="bgame-result" id="bgame-result">
+        <div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;margin-top:12px">
+          CPU と GPU を選ぶと<br>ゲーム性能が自動で表示されます
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== GOOGLE SHEETS CSV URLs =====
+// シート名をURLに追加する形式: &sheet=シート名
+const SHEET_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWy_y9KV-3cBzUgvdzf6Ww_kzzw5nKopwJYhiSAgbHmjNrUR7q2BM9yMYNroIu_EyxWdBFCBufsv51/pub?output=csv';
+const CPU_CSV_URL = SHEET_BASE + '&gid=0';   // 1枚目シート（CPU）
+const GPU_CSV_URL = SHEET_BASE + '&gid=1';   // 2枚目シート（GPU）※gidはスプレッドシートに合わせて調整
+
+// ===== DATA（動的ロード後に格納） =====
+let cpuData = [];
+let gpuData = [];
+let maxCpuScore = 1;
+let maxGpuScore = 1;
+
+// ===== CSV PARSER =====
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    // クォート対応の簡易CSVパース
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    vals.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  }).filter(row => row[headers[0]]); // 空行除去
+}
+
+// ===== CPU CSV → cpuData 変換 =====
+// 想定カラム: CPU名, PassMarkスコア, コア数, スレッド数, TDP, クロック, キャッシュ, 価格(円), コスパ指数
+function parseCpuRow(row) {
+  const name = row['CPU名'] || row['cpu名'] || Object.values(row)[0] || '';
+  const score = parseInt((row['PassMarkスコア'] || row['スコア'] || '0').replace(/,/g,'')) || 0;
+  const cores = parseInt(row['コア数']) || 0;
+  const threads = parseInt(row['スレッド数']) || 0;
+  const tdpStr = (row['TDP'] || '').replace('W','');
+  const tdp = parseInt(tdpStr) || 0;
+  const clock = row['クロック'] || '';
+  const cache = row['キャッシュ'] || '';
+  const priceStr = (row['価格(円)'] || row['価格'] || '').replace(/,/g,'');
+  const price = parseInt(priceStr) || 0;
+  const cospa = parseFloat(row['コスパ指数']) || 0;
+
+  // メーカー判定
+  const maker = name.toLowerCase().includes('ryzen') || name.toLowerCase().includes('amd') ? 'AMD'
+    : name.toLowerCase().includes('core') || name.toLowerCase().includes('intel') ? 'Intel'
+    : name.toLowerCase().includes('apple') ? 'Apple' : 'Other';
+
+  // ソケット判定
+  const socket = name.includes('9') && maker==='AMD' ? 'AM5'
+    : name.includes('7') && maker==='AMD' ? 'AM5'
+    : name.includes('5') && maker==='AMD' ? 'AM5'
+    : maker==='Intel' ? 'LGA1700' : '';
+
+  // バッジ自動付与
+  let badge = '', badgeClass = '';
+  if (cospa >= 1.2) { badge = 'コスパ最強'; badgeClass = 'badge-green'; }
+  else if (cospa >= 0.9) { badge = 'コスパ◎'; badgeClass = 'badge-green'; }
+  else if (score >= 60000) { badge = 'ハイエンド'; badgeClass = 'badge-purple'; }
+
+  return { name, maker, score, single: 0, price, tdp, cores, threads, socket, gen: clock, cache, cospa, badge, badgeClass };
+}
+
+// ===== GPU CSV → gpuData 変換 =====
+// 想定カラム: GPU名, 3DMark Time Spy, TDP, VRAM, 帯域幅, コスパ, 価格(円)
+function parseGpuRow(row) {
+  const name = row['GPU名'] || row['gpu名'] || Object.values(row)[0] || '';
+  const score = parseInt((row['3DMark Time Spy'] || row['スコア'] || '0').replace(/,/g,'')) || 0;
+  const tdpStr = (row['TDP'] || '').replace('W','');
+  const tdp = parseInt(tdpStr) || 0;
+  const vram = row['VRAM'] || '';
+  const bw = row['帯域幅'] || '';
+  const priceStr = (row['価格(円)'] || row['価格'] || '').replace(/,/g,'');
+  const price = parseInt(priceStr) || 0;
+  const cospa = parseFloat(row['コスパ']) || 0;
+
+  const maker = name.includes('RTX') || name.includes('GTX') || name.includes('GeForce') || name.includes('NVIDIA') ? 'NVIDIA'
+    : name.includes('RX') || name.includes('Radeon') || name.includes('AMD') ? 'AMD'
+    : name.includes('Arc') || name.includes('Intel') ? 'Intel' : 'Other';
+
+  const dlss = maker === 'NVIDIA' ? 'DLSS 3' : maker === 'AMD' ? 'FSR 3' : '-';
+  const rt = maker === 'NVIDIA' ? '◎' : maker === 'AMD' ? '○' : '△';
+
+  let badge = '', badgeClass = '';
+  if (cospa >= 0.25) { badge = 'コスパ最強'; badgeClass = 'badge-green'; }
+  else if (score >= 35000) { badge = '最強'; badgeClass = 'badge-purple'; }
+  else if (score >= 20000) { badge = 'ハイエンド'; badgeClass = 'badge-blue'; }
+
+  return { name, maker, score, price, vram, tdp, bw, cospa, rt, dlss, badge, badgeClass };
+}
+
+// ===== ローディング表示 =====
+function showLoading(tbodyId, cols) {
+  const el = document.getElementById(tbodyId);
+  if (el) el.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--text3)">
+    <div style="display:inline-flex;align-items:center;gap:10px">
+      <div style="width:16px;height:16px;border:2px solid var(--accent2);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+      スプレッドシートからデータ読み込み中...
+    </div>
+  </td></tr>`;
+}
+
+// ===== データロード =====
+async function loadSheetData() {
+  showLoading('cpu-table-body', 8);
+  showLoading('gpu-table-body', 8);
+
+  try {
+    // CPU読み込み
+    const cpuRes = await fetch(CPU_CSV_URL);
+    const cpuText = await cpuRes.text();
+    const cpuRows = parseCSV(cpuText);
+    cpuData = cpuRows.map(parseCpuRow).filter(r => r.name && r.score > 0).sort((a,b) => b.score - a.score);
+    maxCpuScore = Math.max(...cpuData.map(d => d.score), 1);
+  } catch(e) {
+    console.warn('CPU読み込み失敗:', e);
+    cpuData = FALLBACK_CPU;
+    maxCpuScore = Math.max(...cpuData.map(d => d.score));
+  }
+
+  try {
+    // GPU読み込み
+    const gpuRes = await fetch(GPU_CSV_URL);
+    const gpuText = await gpuRes.text();
+    const gpuRows = parseCSV(gpuText);
+    gpuData = gpuRows.map(parseGpuRow).filter(r => r.name && r.score > 0).sort((a,b) => b.score - a.score);
+    maxGpuScore = Math.max(...gpuData.map(d => d.score), 1);
+  } catch(e) {
+    console.warn('GPU読み込み失敗:', e);
+    gpuData = FALLBACK_GPU;
+    maxGpuScore = Math.max(...gpuData.map(d => d.score));
+  }
+
+  // レンダリング実行
+  renderCpuTable();
+  renderGpuTable();
+  updateCompare();
+  updateGpuCompare();
+  updateHomeRanking();
+}
+
+// ===== フォールバックデータ（読み込み失敗時） =====
+const FALLBACK_CPU = [
+  { name: "Ryzen 9 9950X3D", maker: "AMD", score: 70594, single: 0, price: 114980, tdp: 170, cores: 16, socket: "AM5", gen: "4.3-5.7GHz", badge: "最強", badgeClass: "badge-purple" },
+  { name: "Core Ultra 9 285K", maker: "Intel", score: 67893, single: 0, price: 97800, tdp: 125, cores: 24, socket: "LGA1700", gen: "3.7-5.7GHz", badge: "ハイエンド", badgeClass: "badge-blue" },
+  { name: "Ryzen 9 9950X", maker: "AMD", score: 66406, single: 0, price: 94800, tdp: 170, cores: 16, socket: "AM5", gen: "4.3-5.7GHz", badge: "", badgeClass: "" },
+  { name: "Ryzen 7 9800X3D", maker: "AMD", score: 41712, single: 0, price: 89800, tdp: 120, cores: 8, socket: "AM5", gen: "4.7-5.6GHz", badge: "ゲーム最強", badgeClass: "badge-orange" },
+  { name: "Core Ultra 7 265KF", maker: "Intel", score: 58802, single: 0, price: 48880, tdp: 125, cores: 20, socket: "LGA1700", gen: "3.9-5.5GHz", badge: "コスパ最強", badgeClass: "badge-green" },
+  { name: "Ryzen 5 9600X", maker: "AMD", score: 29369, single: 0, price: 36820, tdp: 65, cores: 6, socket: "AM5", gen: "3.8-5.2GHz", badge: "コスパ◎", badgeClass: "badge-green" },
+];
+const FALLBACK_GPU = [
+  { name: "GeForce RTX 5090", maker: "NVIDIA", score: 47487, price: 549800, vram: "32GB", tdp: 575, rt: "◎", dlss: "DLSS 4", badge: "最強", badgeClass: "badge-purple" },
+  { name: "GeForce RTX 4090", maker: "NVIDIA", score: 36340, price: 0, vram: "24GB", tdp: 450, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
+  { name: "Radeon RX 9070 XT", maker: "AMD", score: 30070, price: 98000, vram: "16GB", tdp: 304, rt: "○", dlss: "FSR 4", badge: "コスパ◎", badgeClass: "badge-green" },
+  { name: "GeForce RTX 4080 SUPER", maker: "NVIDIA", score: 28531, price: 89000, vram: "16GB", tdp: 320, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
+  { name: "GeForce RTX 4070 Ti SUPER", maker: "NVIDIA", score: 26974, price: 0, vram: "16GB", tdp: 285, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
+  { name: "GeForce RTX 4070 SUPER", maker: "NVIDIA", score: 21130, price: 0, vram: "12GB", tdp: 220, rt: "◎", dlss: "DLSS 3", badge: "コスパ", badgeClass: "badge-green" },
+];
+
+// ===== ホームのTOP5を動的更新 =====
+function updateHomeRanking() {
+  // CPU TOP5
+  const cpuList = document.getElementById('home-cpu-ranking');
+  if (cpuList && cpuData.length) {
+    cpuList.innerHTML = cpuData.slice(0,5).map((c,i) => `
+      <div class="mini-rank-item" onclick="showPage('cpu-rank', document.querySelectorAll('.nav-link')[1])">
+        <div class="mini-rank-pos ${i===0?'pos-1':i===1?'pos-2':i===2?'pos-3':''}">${i+1}</div>
+        <div class="mini-rank-name">${c.name}</div>
+        <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:${c.score/maxCpuScore*100}%;background:linear-gradient(90deg,#58a6ff,#d2a8ff)"></div></div>
+        <div class="mini-rank-score">${c.score.toLocaleString()}</div>
+      </div>`).join('');
+  }
+  // GPU TOP5
+  const gpuList = document.getElementById('home-gpu-ranking');
+  if (gpuList && gpuData.length) {
+    gpuList.innerHTML = gpuData.slice(0,5).map((g,i) => `
+      <div class="mini-rank-item" onclick="showPage('gpu-rank', document.querySelectorAll('.nav-link')[2])">
+        <div class="mini-rank-pos ${i===0?'pos-1':i===1?'pos-2':i===2?'pos-3':''}">${i+1}</div>
+        <div class="mini-rank-name">${g.name}</div>
+        <div class="mini-rank-bar"><div class="mini-rank-bar-fill" style="width:${g.score/maxGpuScore*100}%;background:linear-gradient(90deg,#f78166,#ffd700)"></div></div>
+        <div class="mini-rank-score" style="color:var(--accent)">${g.score.toLocaleString()}</div>
+      </div>`).join('');
+  }
+}
+
+// spin animation
+const spinStyle = document.createElement('style');
+spinStyle.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(spinStyle);
+
+function fmtPrice(p) { return `¥${p.toLocaleString()}`; }
+function rankColor(i) { return i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''; }
+
+// ===== RENDER CPU TABLE =====
+function renderCpuTable() {
+  const tbody = document.getElementById('cpu-table-body');
+  tbody.innerHTML = cpuData.map((c, i) => `
+    <tr>
+      <td><span class="rank-num ${rankColor(i)}">${i+1}</span></td>
+      <td>
+        <div class="chip-name">${c.name} ${c.badge ? `<span class="badge ${c.badgeClass}">${c.badge}</span>` : ''}</div>
+        <div class="chip-sub">${c.maker} · ${c.gen} · ${c.cores}コア · ${c.socket}</div>
+      </td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-val">${c.score.toLocaleString()}</div>
+          <div class="score-bar-bg"><div class="score-bar" style="width:${c.score/maxCpuScore*100}%"></div></div>
+        </div>
+      </td>
+      <td class="price-cell">${fmtPrice(c.price)}</td>
+      <td class="price-cell">${c.tdp}W</td>
+      <td class="price-cell">${c.cores}コア</td>
+      <td><span class="badge badge-green">★★★★</span></td>
+      <td><button class="affiliate-btn">🛒 Amazon</button></td>
+    </tr>
+  `).join('');
+}
+
+// ===== RENDER GPU TABLE =====
+function renderGpuTable() {
+  const tbody = document.getElementById('gpu-table-body');
+  tbody.innerHTML = gpuData.map((g, i) => `
+    <tr>
+      <td><span class="rank-num ${rankColor(i)}">${i+1}</span></td>
+      <td>
+        <div class="chip-name">${g.name} ${g.badge ? `<span class="badge ${g.badgeClass}">${g.badge}</span>` : ''}</div>
+        <div class="chip-sub">${g.maker} · ${g.vram} VRAM · ${g.dlss}</div>
+      </td>
+      <td>
+        <div class="score-bar-wrap">
+          <div class="score-val" style="color:var(--accent)">${g.score.toLocaleString()}</div>
+          <div class="score-bar-bg"><div class="score-bar gpu" style="width:${g.score/maxGpuScore*100}%"></div></div>
+        </div>
+      </td>
+      <td class="price-cell">${fmtPrice(g.price)}</td>
+      <td class="price-cell">${g.vram}</td>
+      <td class="price-cell">${g.tdp}W</td>
+      <td><span class="badge badge-orange">★★★★</span></td>
+      <td><button class="affiliate-btn">🛒 Amazon</button></td>
+    </tr>
+  `).join('');
+}
+
+// ===== CPU COMPARE =====
+function updateCompare() {
+  const a = cpuData[parseInt(document.getElementById('cpu-a-select').value)];
+  const b = cpuData[parseInt(document.getElementById('cpu-b-select').value)];
+
+  // Perf bars
+  const perf = document.getElementById('cpu-perf-bars');
+  const metrics = [
+    { label: 'マルチスレッド', aVal: a.score, bVal: b.score, max: maxCpuScore, colorA: '#58a6ff', colorB: '#f78166' },
+    { label: 'シングルスレッド', aVal: a.single, bVal: b.single, max: Math.max(a.single,b.single)*1.1, colorA: '#58a6ff', colorB: '#f78166' },
+  ];
+
+  perf.innerHTML = metrics.map(m => `
+    <div class="perf-card">
+      <div class="perf-card-title">${m.label}</div>
+      <div class="perf-bars">
+        <div class="perf-bar-row">
+          <div class="perf-bar-label" style="color:#58a6ff">${a.name.split(' ').slice(-2).join(' ')}</div>
+          <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${m.aVal/m.max*100}%;background:${m.colorA}"></div></div>
+          <div class="perf-bar-pct">${m.aVal.toLocaleString()}</div>
+        </div>
+        <div class="perf-bar-row">
+          <div class="perf-bar-label" style="color:#f78166">${b.name.split(' ').slice(-2).join(' ')}</div>
+          <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${m.bVal/m.max*100}%;background:${m.colorB}"></div></div>
+          <div class="perf-bar-pct">${m.bVal.toLocaleString()}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Compare table
+  const rows = [
+    ['価格', fmtPrice(a.price), fmtPrice(b.price), 'low'],
+    ['Cinebench R23 Multi', a.score.toLocaleString(), b.score.toLocaleString(), 'high'],
+    ['Cinebench R23 Single', a.single.toLocaleString(), b.single.toLocaleString(), 'high'],
+    ['コア数', a.cores+'コア', b.cores+'コア', 'high'],
+    ['TDP', a.tdp+'W', b.tdp+'W', 'low'],
+    ['ソケット', a.socket, b.socket, null],
+    ['世代', a.gen, b.gen, null],
+  ];
+
+  const table = document.getElementById('cpu-compare-table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="label-col">項目</th>
+        <th style="color:#58a6ff">${a.name}</th>
+        <th style="color:#f78166">${b.name}</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(([label, av, bv, mode]) => {
+        let aClass = '', bClass = '';
+        if (mode) {
+          const an = parseFloat(av.replace(/[^0-9.]/g,''));
+          const bn = parseFloat(bv.replace(/[^0-9.]/g,''));
+          if (!isNaN(an) && !isNaN(bn)) {
+            if (mode==='high') { if(an>bn) aClass='best-val'; else if(bn>an) bClass='best-val'; }
+            if (mode==='low')  { if(an<bn) aClass='best-val'; else if(bn<an) bClass='best-val'; }
+          }
+        }
+        return `<tr>
+          <td class="label-col">${label}</td>
+          <td class="${aClass}">${av}</td>
+          <td class="${bClass}">${bv}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>`;
+}
+
+// ===== GPU COMPARE =====
+function updateGpuCompare() {
+  const a = gpuData[parseInt(document.getElementById('gpu-a-select').value)];
+  const b = gpuData[parseInt(document.getElementById('gpu-b-select').value)];
+
+  const rows = [
+    ['価格', fmtPrice(a.price), fmtPrice(b.price), 'low'],
+    ['3DMark Time Spy', a.score.toLocaleString(), b.score.toLocaleString(), 'high'],
+    ['VRAM', a.vram, b.vram, null],
+    ['消費電力 (TDP)', a.tdp+'W', b.tdp+'W', 'low'],
+    ['レイトレーシング', a.rt, b.rt, null],
+    ['アップスケーリング', a.dlss, b.dlss, null],
+  ];
+
+  const table = document.getElementById('gpu-compare-table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th class="label-col">項目</th>
+        <th style="color:#58a6ff">${a.name}</th>
+        <th style="color:#f78166">${b.name}</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(([label, av, bv, mode]) => {
+        let aClass = '', bClass = '';
+        if (mode) {
+          const an = parseFloat(av.replace(/[^0-9.]/g,''));
+          const bn = parseFloat(bv.replace(/[^0-9.]/g,''));
+          if (!isNaN(an) && !isNaN(bn)) {
+            if (mode==='high') { if(an>bn) aClass='best-val'; else if(bn>an) bClass='best-val'; }
+            if (mode==='low')  { if(an<bn) aClass='best-val'; else if(bn<an) bClass='best-val'; }
+          }
+        }
+        return `<tr>
+          <td class="label-col">${label}</td>
+          <td class="${aClass}">${av}</td>
+          <td class="${bClass}">${bv}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>`;
+}
+
+// ===== NAV =====
+function showPage(id, clickedEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  if (clickedEl) clickedEl.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function filterToggle(el) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchTab(el, tabId) {
+  const page = el.closest('.page') || document;
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  // Find tab contents in same table-wrap
+  const wrap = el.closest('.table-wrap');
+  wrap.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const target = wrap.querySelector('#cpu-'+tabId);
+  if (target) target.classList.add('active');
+}
+
+// ===== BUILDER DATA =====
+const BPARTS = {
+  cpu:     { label:'CPU',           icon:'🔲', color:'#58a6ff', items:[
+    { id:'bc1', name:'Ryzen 9 7950X3D',   spec:'16コア · 4.2GHz · AM5',    price:89800, score:40015, socket:'AM5',     tdp:120 },
+    { id:'bc2', name:'Core i9-14900K',    spec:'24コア · 3.2GHz · LGA1700', price:69800, score:39800, socket:'LGA1700', tdp:253 },
+    { id:'bc3', name:'Ryzen 7 7800X3D',   spec:'8コア · 4.5GHz · AM5',     price:56800, score:35000, socket:'AM5',     tdp:120 },
+    { id:'bc4', name:'Core i7-14700K',    spec:'20コア · 3.4GHz · LGA1700', price:54800, score:34000, socket:'LGA1700', tdp:253 },
+    { id:'bc5', name:'Ryzen 5 7600X',     spec:'6コア · 4.7GHz · AM5',     price:28800, score:19500, socket:'AM5',     tdp:105 },
+    { id:'bc6', name:'Core i5-14600K',    spec:'14コア · 3.5GHz · LGA1700', price:34800, score:24000, socket:'LGA1700', tdp:181 },
+  ]},
+  gpu:     { label:'GPU',           icon:'🎮', color:'#f78166', items:[
+    { id:'bg1', name:'RTX 4090',          spec:'24GB GDDR6X · 450W',  price:239800, score:38700, vram:24 },
+    { id:'bg2', name:'RTX 4080 Super',    spec:'16GB GDDR6X · 320W',  price:149800, score:31000, vram:16 },
+    { id:'bg3', name:'RTX 4070 Ti Super', spec:'16GB GDDR6X · 285W',  price:109800, score:26500, vram:16 },
+    { id:'bg4', name:'RX 7900 XTX',       spec:'24GB GDDR6 · 355W',   price:149800, score:32000, vram:24 },
+    { id:'bg5', name:'RTX 4070 Super',    spec:'12GB GDDR6X · 220W',  price:89800,  score:22000, vram:12 },
+    { id:'bg6', name:'RTX 4060 Ti',       spec:'16GB GDDR6 · 165W',   price:62800,  score:16500, vram:16 },
+    { id:'bg7', name:'RX 7600',           spec:'8GB GDDR6 · 165W',    price:34800,  score:11000, vram:8  },
+  ]},
+  mb:      { label:'マザーボード',   icon:'🔧', color:'#3fb950', items:[
+    { id:'bm1', name:'ASUS ROG Strix X670E-E',   spec:'AM5 · DDR5 · ATX',     price:59800, socket:'AM5'     },
+    { id:'bm2', name:'MSI MAG X670E Tomahawk',   spec:'AM5 · DDR5 · ATX',     price:38800, socket:'AM5'     },
+    { id:'bm3', name:'ASUS ROG Maximus Z790',     spec:'LGA1700 · DDR5 · ATX', price:89800, socket:'LGA1700' },
+    { id:'bm4', name:'MSI MAG Z790 Tomahawk',     spec:'LGA1700 · DDR5 · ATX', price:32800, socket:'LGA1700' },
+    { id:'bm5', name:'ASRock B650E Steel Legend', spec:'AM5 · DDR5 · ATX',     price:24800, socket:'AM5'     },
+  ]},
+  ram:     { label:'メモリ (RAM)',   icon:'💾', color:'#d2a8ff', items:[
+    { id:'br1', name:'DDR5-6000 64GB (32GB×2)', spec:'G.Skill Trident Z5',  price:34800, gb:64 },
+    { id:'br2', name:'DDR5-6000 32GB (16GB×2)', spec:'Kingston Fury Beast', price:18800, gb:32 },
+    { id:'br3', name:'DDR5-4800 32GB (16GB×2)', spec:'Crucial Pro',         price:12800, gb:32 },
+    { id:'br4', name:'DDR5-5200 16GB (8GB×2)',  spec:'Corsair Vengeance',   price:8800,  gb:16 },
+  ]},
+  storage: { label:'SSD',           icon:'💿', color:'#e3b341', items:[
+    { id:'bs1', name:'Samsung 990 Pro 2TB',  spec:'NVMe Gen4 · 7450MB/s', price:22800 },
+    { id:'bs2', name:'WD Black SN850X 2TB',  spec:'NVMe Gen4 · 7300MB/s', price:21800 },
+    { id:'bs3', name:'Samsung 990 Pro 1TB',  spec:'NVMe Gen4 · 7450MB/s', price:13800 },
+    { id:'bs4', name:'Crucial T500 1TB',     spec:'NVMe Gen4 · 7400MB/s', price:9800  },
+  ]},
+  psu:     { label:'電源 (PSU)',     icon:'⚡', color:'#ffd700', items:[
+    { id:'bp1', name:'Seasonic Prime TX-1000W', spec:'1000W · 80+ Titanium', price:39800, watts:1000 },
+    { id:'bp2', name:'Corsair RM1000x',         spec:'1000W · 80+ Gold',     price:24800, watts:1000 },
+    { id:'bp3', name:'be quiet! Dark Power 850W',spec:'850W · 80+ Platinum', price:22800, watts:850  },
+    { id:'bp4', name:'Seasonic Focus GX-750',   spec:'750W · 80+ Gold',      price:14800, watts:750  },
+    { id:'bp5', name:'Corsair CX650M',          spec:'650W · 80+ Bronze',    price:8800,  watts:650  },
+  ]},
+  case:    { label:'ケース',         icon:'🖥️', color:'#58a6ff', items:[
+    { id:'bk1', name:'Fractal Design Torrent', spec:'ATX · 最高エアフロー', price:24800 },
+    { id:'bk2', name:'Lian Li PC-O11 Dynamic', spec:'ATX · フルガラス',     price:18800 },
+    { id:'bk3', name:'NZXT H7 Flow',           spec:'ATX · ミドルタワー',   price:16800 },
+    { id:'bk4', name:'Cooler Master HAF 500',  spec:'ATX · 大型ファン',     price:12800 },
+  ]},
+};
+
+const BGAMES = [
+  { name:'Cyberpunk 2077',            tag:'4K Ultra Ray Tracing', tier:'ultra', gpuMin:30000, cpuMin:30000 },
+  { name:'MS Flight Simulator',       tag:'4K Ultra',             tier:'ultra', gpuMin:30000, cpuMin:35000 },
+  { name:'Alan Wake 2',               tag:'4K High RT',           tier:'ultra', gpuMin:28000, cpuMin:25000 },
+  { name:'Hogwarts Legacy',           tag:'4K Ultra',             tier:'ultra', gpuMin:26000, cpuMin:25000 },
+  { name:'Cyberpunk 2077',            tag:'1440p Ultra',          tier:'high',  gpuMin:18000, cpuMin:20000 },
+  { name:'Call of Duty MW3',          tag:'4K Ultra',             tier:'high',  gpuMin:16000, cpuMin:18000 },
+  { name:'Elden Ring',                tag:'4K/60fps',             tier:'high',  gpuMin:16000, cpuMin:15000 },
+  { name:'Red Dead Redemption 2',     tag:'4K High',              tier:'high',  gpuMin:18000, cpuMin:20000 },
+  { name:'Starfield',                 tag:'1440p Ultra',          tier:'high',  gpuMin:16000, cpuMin:22000 },
+  { name:'Assassin\'s Creed Mirage', tag:'4K Ultra',              tier:'high',  gpuMin:18000, cpuMin:18000 },
+  { name:'Forza Horizon 5',           tag:'1080p Ultra/120fps',   tier:'mid',   gpuMin:9000,  cpuMin:12000 },
+  { name:'Apex Legends',             tag:'1440p 144fps',          tier:'mid',   gpuMin:9000,  cpuMin:12000 },
+  { name:'Valorant',                  tag:'1080p 240fps+',        tier:'mid',   gpuMin:6000,  cpuMin:10000 },
+  { name:'Minecraft (RTX)',           tag:'1080p 60fps',          tier:'mid',   gpuMin:9000,  cpuMin:10000 },
+  { name:'GTA V',                     tag:'1080p Ultra',          tier:'mid',   gpuMin:8000,  cpuMin:10000 },
+  { name:'Fortnite',                  tag:'1080p 144fps Epic',    tier:'mid',   gpuMin:9000,  cpuMin:10000 },
+  { name:'Valorant',                  tag:'1080p 60fps',          tier:'low',   gpuMin:0,     cpuMin:0 },
+  { name:'League of Legends',         tag:'1080p 60fps',          tier:'low',   gpuMin:0,     cpuMin:0 },
+  { name:'Minecraft',                 tag:'1080p 60fps',          tier:'low',   gpuMin:0,     cpuMin:0 },
+  { name:'CS2',                       tag:'1080p 60fps',          tier:'low',   gpuMin:0,     cpuMin:0 },
+];
+
+const bSelected = {};
+const B_OS = 15000;
+
+function brenderParts() {
+  const el = document.getElementById('bpart-picker');
+  el.innerHTML = Object.entries(BPARTS).map(([cat, data]) => `
+    <div class="bpart-section" id="bsec-${cat}">
+      <div class="bpart-header" onclick="btoggle('${cat}')">
+        <div class="bpart-icon" style="background:${data.color}20;color:${data.color}">${data.icon}</div>
+        <div>
+          <span class="bpart-cat-label">${cat.toUpperCase()}</span>
+          <div class="bpart-cat-name">${data.label}</div>
+        </div>
+        <div class="bpart-sel-info" id="bsel-info-${cat}" style="display:none">
+          <div class="bpart-sel-name" id="bsel-name-${cat}"></div>
+          <div class="bpart-sel-price" id="bsel-price-${cat}"></div>
+        </div>
+        <span class="bpart-chevron">▼</span>
+      </div>
+      <div class="bpart-list" id="blist-${cat}">
+        ${data.items.map(item => `
+          <div class="bpart-item" id="bitem-${item.id}" onclick="bselect('${cat}','${item.id}')">
+            <div class="bpart-check" id="bcheck-${item.id}">✓</div>
+            <div class="bpart-item-name">
+              <strong>${item.name}</strong>
+              <small>${item.spec}</small>
+            </div>
+            <div class="bpart-item-right">
+              <div class="bpart-item-price">¥${item.price.toLocaleString()}</div>
+              ${item.score ? `<div class="bpart-item-score">score: ${item.score.toLocaleString()}</div>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  btoggle('cpu');
+}
+
+function btoggle(cat) {
+  document.getElementById('bsec-'+cat).classList.toggle('bopen');
+}
+
+function bselect(cat, id) {
+  const prev = bSelected[cat];
+  if (prev) {
+    document.getElementById('bitem-'+prev.id)?.classList.remove('bselected');
+    document.getElementById('bsec-'+cat)?.classList.remove('has-selection');
+  }
+  const item = BPARTS[cat].items.find(i => i.id === id);
+  if (prev && prev.id === id) {
+    delete bSelected[cat];
+    document.getElementById('bsel-info-'+cat).style.display = 'none';
+  } else {
+    bSelected[cat] = item;
+    document.getElementById('bitem-'+id).classList.add('bselected');
+    document.getElementById('bsec-'+cat).classList.add('has-selection');
+    document.getElementById('bsel-info-'+cat).style.display = 'block';
+    document.getElementById('bsel-name-'+cat).textContent = item.name;
+    document.getElementById('bsel-price-'+cat).textContent = '¥'+item.price.toLocaleString();
+  }
+  bupdateCart();
+}
+
+function bupdateCart() {
+  const items = Object.entries(bSelected);
+  const partsTotal = items.reduce((s,[,v])=>s+v.price, 0);
+  const grand = partsTotal + B_OS;
+  document.getElementById('bparts-total').textContent = '¥'+partsTotal.toLocaleString();
+  document.getElementById('bgrand-total').textContent = '¥'+grand.toLocaleString();
+  document.getElementById('bcart-count').textContent = `${items.length} / 7 パーツ選択済み`;
+
+  const listEl = document.getElementById('bcart-list');
+  if (!items.length) {
+    listEl.innerHTML = '<div class="bcart-empty">← パーツを選んでください</div>';
+  } else {
+    listEl.innerHTML = items.map(([cat, item]) => `
+      <div class="bcart-item">
+        <div class="bcart-item-cat">${BPARTS[cat].icon}</div>
+        <div class="bcart-item-name">${item.name}</div>
+        <div class="bcart-item-price">¥${item.price.toLocaleString()}</div>
+        <div class="bcart-item-del" onclick="bremove('${cat}','${item.id}')">✕</div>
+      </div>
+    `).join('');
+  }
+  if (bSelected.cpu && bSelected.gpu) banalyze();
+  else document.getElementById('bgame-result').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;margin-top:12px">CPU と GPU を選ぶと<br>ゲーム性能が自動で表示されます</div>';
+}
+
+function bremove(cat, id) {
+  document.getElementById('bitem-'+id)?.classList.remove('bselected');
+  document.getElementById('bsec-'+cat)?.classList.remove('has-selection');
+  document.getElementById('bsel-info-'+cat).style.display = 'none';
+  delete bSelected[cat];
+  bupdateCart();
+}
+
+function bclearAll() {
+  Object.keys(bSelected).forEach(cat => {
+    const item = bSelected[cat];
+    document.getElementById('bitem-'+item.id)?.classList.remove('bselected');
+    document.getElementById('bsec-'+cat)?.classList.remove('has-selection');
+    document.getElementById('bsel-info-'+cat).style.display = 'none';
+    delete bSelected[cat];
+  });
+  bupdateCart();
+}
+
+function banalyze() {
+  const cpu = bSelected.cpu, gpu = bSelected.gpu;
+  if (!cpu || !gpu) return;
+  const gs = gpu.score, cs = cpu.score;
+
+  let tier, tierLabel, tierColor, tierDesc;
+  if (gs>=30000 && cs>=30000)      { tier='ultra'; tierLabel='ULTRA / ハイエンド'; tierColor='var(--gold)';    tierDesc='4K Ultra設定でほぼ全ゲームを最高画質でプレイ可能。レイトレ・4Kも余裕です。'; }
+  else if (gs>=18000 && cs>=18000) { tier='high';  tierLabel='HIGH / ハイスペック'; tierColor='var(--accent2)'; tierDesc='1440p〜4KでほとんどのAAAタイトルを快適にプレイできます。'; }
+  else if (gs>=9000 && cs>=9000)   { tier='mid';   tierLabel='MID / ミドルスペック'; tierColor='var(--accent3)'; tierDesc='1080p Highでほぼ全ゲームを60fps以上でプレイできます。'; }
+  else                              { tier='low';   tierLabel='LOW / エントリー';    tierColor='var(--text2)';  tierDesc='軽量ゲーム・2Dゲームを中心に楽しめます。重いAAAは設定を下げて。'; }
+
+  const ratio = cs/gs;
+  let warns = '';
+  if (ratio < 0.6) warns += `<div class="bwarn bwarn-yellow">⚠ CPUがGPUに対して弱め。ボトルネックになる可能性があります。</div>`;
+  else if (ratio > 1.6) warns += `<div class="bwarn bwarn-yellow">⚠ GPUがCPUに対して弱め。CPUを活かしきれない場面があります。</div>`;
+  if (bSelected.mb && bSelected.mb.socket && cpu.socket && bSelected.mb.socket !== cpu.socket)
+    warns += `<div class="bwarn bwarn-red">✕ マザボ(${bSelected.mb.socket})とCPU(${cpu.socket})のソケットが非対応です！</div>`;
+  if (bSelected.psu) {
+    const need = (cpu.tdp||150) + (gs>25000?420:gs>15000?290:200) + 100;
+    if (bSelected.psu.watts < need*0.9) warns += `<div class="bwarn bwarn-yellow">⚠ 電源容量が不足の可能性。推奨: ${Math.ceil(need/50)*50}W以上。</div>`;
+  }
+
+  const tiers = ['low','mid','high','ultra'];
+  const ti = tiers.indexOf(tier);
+
+  const playable = {ultra:[],high:[],mid:[],low:[]};
+  BGAMES.forEach(g => {
+    if (gs>=g.gpuMin && cs>=g.cpuMin) {
+      if (g.tier==='ultra'&&ti>=3) playable.ultra.push(g);
+      else if (g.tier==='high'&&ti>=2) playable.high.push(g);
+      else if (g.tier==='mid'&&ti>=1) playable.mid.push(g);
+      else if (g.tier==='low') playable.low.push(g);
+    }
+  });
+
+  document.getElementById('bgame-result').innerHTML = `
+    <div class="bresult-title">🎮 ゲーム性能診断</div>
+    ${warns}
+    <div class="bresult-summary">
+      <div class="bresult-tier" style="color:${tierColor}">${tierLabel}</div>
+      <div class="bresult-desc">${tierDesc}</div>
+    </div>
+    <div class="btier-bar">
+      ${tiers.map((t,i)=>`<div class="btier-seg ${i<=ti?'a'+t:''}"></div>`).join('')}
+    </div>
+    <div class="btier-labels"><span class="btier-label-sm">LOW</span><span class="btier-label-sm">MID</span><span class="btier-label-sm">HIGH</span><span class="btier-label-sm">ULTRA</span></div>
+    ${playable.ultra.length?`<div class="btier-group"><div class="btier-group-label blabel-ultra">⭐ ULTRA 4K最高画質</div><div class="bgame-chips">${playable.ultra.map(g=>`<div class="bgame-chip">${g.name}<small>${g.tag}</small></div>`).join('')}</div></div>`:''}
+    ${playable.high.length?`<div class="btier-group"><div class="btier-group-label blabel-high">◎ HIGH 1440p〜4K</div><div class="bgame-chips">${playable.high.map(g=>`<div class="bgame-chip">${g.name}<small>${g.tag}</small></div>`).join('')}</div></div>`:''}
+    ${playable.mid.length?`<div class="btier-group"><div class="btier-group-label blabel-mid">○ MID 1080p快適</div><div class="bgame-chips">${playable.mid.map(g=>`<div class="bgame-chip">${g.name}<small>${g.tag}</small></div>`).join('')}</div></div>`:''}
+    ${playable.low.length?`<div class="btier-group"><div class="btier-group-label blabel-low">△ LOW 軽量タイトル</div><div class="bgame-chips">${playable.low.slice(0,5).map(g=>`<div class="bgame-chip">${g.name}<small>${g.tag}</small></div>`).join('')}</div></div>`:''}
+  `;
+}
+
+// ===== GOOGLE SHEETS LOADER =====
+const SHEET_GPU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTWy_y9KV-3cBzUgvdzf6Ww_kzzw5nKopwJYhiSAgbHmjNrUR7q2BM9yMYNroIu_EyxWdBFCBufsv51/pub?output=csv';
+const SHEET_CPU_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTnE_b6Hea4Igz7EQpbqgEovaQOrbRA7kOCV3gzfZNH5f_Te8KPANXmO3nf5InDINw3JIzTq_CGEYJ-/pub?output=csv';
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; continue; }
+      if (line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
+      cur += line[i];
+    }
+    cols.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i]||'').replace(/^"|"$/g,'').trim());
+    return obj;
+  }).filter(r => r[headers[0]]);
+}
+
+async function loadSheetData() {
+  await Promise.all([
+    loadSheet(SHEET_CPU_URL, false),
+    loadSheet(SHEET_GPU_URL, true),
+  ]);
+  brenderParts();
+}
+
+async function loadSheet(url, isGpu) {
+  try {
+    const res = await fetch(url, { mode: 'cors', cache: 'no-cache' });
+    if (!res.ok) throw new Error('fetch failed: ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (!rows.length) throw new Error('empty');
+
+    const keys = Object.keys(rows[0]);
+    console.log('📋 列名:', keys);
+    const col = (candidates) => keys.find(k => candidates.some(c => k.toLowerCase().includes(c.toLowerCase())));
+
+    const nameCol  = col(['CPU名','GPU名','名前','name']) || keys[0];
+    const scoreCol = col(['3DMark Time Spy','PassMark','3DMark','スコア','score','Score','TimeSpy','Time Spy']);
+    const priceCol = col(['価格','price','Price']);
+    const tdpCol   = col(['TDP','tdp','消費電力']);
+    const coreCol  = col(['コア数','コア','core']);
+    const socketCol= col(['ソケット','socket','Socket']);
+    const vramCol  = col(['VRAM','vram','メモリ']);
+    console.log(`🔍 ${isGpu?'GPU':'CPU'} 列マッピング:`, {nameCol, scoreCol, priceCol, tdpCol, vramCol});
+
+    const newData = rows.map(r => {
+      const name  = r[nameCol] || '';
+      const score = parseInt((r[scoreCol]||'').replace(/[^0-9]/g,'')) || 0;
+      const price = parseInt((r[priceCol]||'').replace(/[^0-9]/g,'')) || 0;
+      const tdp   = parseInt((r[tdpCol]||'').replace(/[^0-9]/g,'')) || 0;
+      if (!name || !score) return null;
+      if (isGpu) {
+        const maker = name.includes('Radeon')||name.includes('RX')||name.includes('Arc')?'AMD':'NVIDIA';
+        const dlss  = maker==='AMD'?'FSR 3':'DLSS 3';
+        return { name, maker, score, price, vram: r[vramCol]||'', tdp, rt:'◎', dlss, badge:'', badgeClass:'' };
+      } else {
+        const cores = parseInt((r[coreCol]||'').replace(/[^0-9]/g,'')) || 0;
+        const maker = name.includes('Ryzen')||name.includes('AMD')?'AMD':name.includes('Apple')?'Apple':'Intel';
+        return { name, maker, score, single:0, price, tdp, cores, socket:r[socketCol]||'', gen:'', badge:'', badgeClass:'' };
+      }
+    }).filter(Boolean).sort((a,b) => b.score - a.score);
+
+    if (!newData.length) throw new Error('no valid rows');
+
+    if (isGpu) {
+      gpuData.length = 0;
+      newData.forEach(d => gpuData.push(d));
+      window.maxGpuScore = Math.max(...gpuData.map(d => d.score));
+      renderGpuTable();
+      updateGpuCompare();
+      BPARTS.gpu.items = gpuData.slice(0,12).map((g,i)=>({
+        id:'bg'+(i+1), name:g.name, spec:`${g.vram} · ${g.tdp}W`,
+        price:g.price||0, score:g.score, vram:parseInt(g.vram)||8
+      }));
+    } else {
+      cpuData.length = 0;
+      newData.forEach(d => cpuData.push(d));
+      window.maxCpuScore = Math.max(...cpuData.map(d => d.score));
+      renderCpuTable();
+      updateCompare();
+      BPARTS.cpu.items = cpuData.slice(0,12).map((c,i)=>({
+        id:'bc'+(i+1), name:c.name, spec:`${c.cores}コア · ${c.tdp}W`,
+        price:c.price||0, score:c.score, socket:c.socket||'', tdp:c.tdp
+      }));
+    }
+    console.log(`✓ ${isGpu?'GPU':'CPU'} ${newData.length}件読み込み完了`);
+  } catch(e) {
+    console.warn(`${isGpu?'GPU':'CPU'} sheet load failed:`, e.message);
+  }
+}
+
+// ===== INIT =====
+renderCpuTable();
+renderGpuTable();
+updateCompare();
+updateGpuCompare();
+brenderParts();
+
+// 読み込み中表示
+document.getElementById('cpu-table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--accent2)">⏳ スプレッドシートから読み込み中...</td></tr>';
+document.getElementById('gpu-table-body').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--accent2)">⏳ スプレッドシートから読み込み中...</td></tr>';
+
+loadSheetData();
+</script>
+</body>
+</html>
