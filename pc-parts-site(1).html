@@ -1087,7 +1087,7 @@ nav {
 
   <div class="footer-band">
     <div class="footer-logo">BENCH<span>CORE</span></div>
-    <div class="footer-note">価格はAmazon/価格.com参照 · スコアはBenchmark実測値</div>
+    <div class="footer-note">価格はkakaku.com参照 · スコアはBenchmark実測値</div>
   </div>
 </div>
 
@@ -1130,7 +1130,7 @@ nav {
 
   <div class="footer-band">
     <div class="footer-logo">BENCH<span>CORE</span></div>
-    <div class="footer-note">価格はAmazon/価格.com参照 · スコアは3DMark実測値</div>
+    <div class="footer-note">価格はkakaku.com参照 · スコアは3DMark実測値</div>
   </div>
 </div>
 
@@ -1196,23 +1196,13 @@ nav {
       <div class="select-box">
         <label>GPU A</label>
         <select id="gpu-a-select" onchange="updateGpuCompare()">
-          <option value="0">RTX 4090</option>
-          <option value="1">RX 7900 XTX</option>
-          <option value="2">RTX 4080 Super</option>
-          <option value="3">RTX 4070 Ti Super</option>
-          <option value="4">RX 7900 XT</option>
-          <option value="5">RTX 4070 Super</option>
+          <option value="0">読み込み中...</option>
         </select>
       </div>
       <div class="select-box">
         <label>GPU B</label>
         <select id="gpu-b-select" onchange="updateGpuCompare()">
-          <option value="0">RTX 4090</option>
-          <option value="1" selected>RX 7900 XTX</option>
-          <option value="2">RTX 4080 Super</option>
-          <option value="3">RTX 4070 Ti Super</option>
-          <option value="4">RX 7900 XT</option>
-          <option value="5">RTX 4070 Super</option>
+          <option value="0">読み込み中...</option>
         </select>
       </div>
     </div>
@@ -1224,7 +1214,7 @@ nav {
 
   <div class="footer-band">
     <div class="footer-logo">BENCH<span>CORE</span></div>
-    <div class="footer-note">スペックはメーカー公式値 · 価格はAmazon参照</div>
+    <div class="footer-note">スペックはメーカー公式値 · 価格はkakaku.com参照</div>
   </div>
 </div>
 
@@ -1416,6 +1406,7 @@ async function loadSheetData() {
   // レンダリング実行
   renderCpuTable();
   renderGpuTable();
+  populateGpuSelects();
   updateCompare();
   updateGpuCompare();
   updateHomeRanking();
@@ -1431,12 +1422,21 @@ const FALLBACK_CPU = [
   { name: "Ryzen 5 9600X", maker: "AMD", score: 29369, single: 0, price: 36820, tdp: 65, cores: 6, socket: "AM5", gen: "3.8-5.2GHz", badge: "コスパ◎", badgeClass: "badge-green" },
 ];
 const FALLBACK_GPU = [
-  { name: "GeForce RTX 5090", maker: "NVIDIA", score: 47487, price: 549800, vram: "32GB", tdp: 575, rt: "◎", dlss: "DLSS 4", badge: "最強", badgeClass: "badge-purple" },
-  { name: "GeForce RTX 4090", maker: "NVIDIA", score: 36340, price: 0, vram: "24GB", tdp: 450, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
-  { name: "Radeon RX 9070 XT", maker: "AMD", score: 30070, price: 98000, vram: "16GB", tdp: 304, rt: "○", dlss: "FSR 4", badge: "コスパ◎", badgeClass: "badge-green" },
-  { name: "GeForce RTX 4080 SUPER", maker: "NVIDIA", score: 28531, price: 89000, vram: "16GB", tdp: 320, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
-  { name: "GeForce RTX 4070 Ti SUPER", maker: "NVIDIA", score: 26974, price: 0, vram: "16GB", tdp: 285, rt: "◎", dlss: "DLSS 3", badge: "", badgeClass: "" },
-  { name: "GeForce RTX 4070 SUPER", maker: "NVIDIA", score: 21130, price: 0, vram: "12GB", tdp: 220, rt: "◎", dlss: "DLSS 3", badge: "コスパ", badgeClass: "badge-green" },
+  { name: "GeForce RTX 5090",      maker: "NVIDIA", score: 47487, price: 549800, vram: "32GB", tdp: 575, bw: "1792GB/s", rt: "◎", dlss: "DLSS 4", cospa: 0.086, badge: "最強",       badgeClass: "badge-purple" },
+  { name: "GeForce RTX 4090",      maker: "NVIDIA", score: 36340, price: 249800, vram: "24GB", tdp: 450, bw: "1008GB/s", rt: "◎", dlss: "DLSS 3", cospa: 0.145, badge: "",            badgeClass: "" },
+  { name: "Radeon RX 7900 XTX",   maker: "AMD",    score: 34994, price: 139800, vram: "24GB", tdp: 355, bw: "960GB/s",  rt: "○", dlss: "FSR 3",  cospa: 0.250, badge: "コスパ◎",   badgeClass: "badge-green"  },
+  { name: "GeForce RTX 5080",      maker: "NVIDIA", score: 33200, price: 219800, vram: "16GB", tdp: 360, bw: "960GB/s",  rt: "◎", dlss: "DLSS 4", cospa: 0.151, badge: "",            badgeClass: "" },
+  { name: "Radeon RX 9070 XT",    maker: "AMD",    score: 30070, price:  98000, vram: "16GB", tdp: 304, bw: "640GB/s",  rt: "○", dlss: "FSR 4",  cospa: 0.307, badge: "コスパ最強", badgeClass: "badge-green"  },
+  { name: "GeForce RTX 4080 SUPER",maker: "NVIDIA", score: 28531, price:  99800, vram: "16GB", tdp: 320, bw: "736GB/s",  rt: "◎", dlss: "DLSS 3", cospa: 0.286, badge: "",            badgeClass: "" },
+  { name: "Radeon RX 7900 XT",    maker: "AMD",    score: 28938, price:  89800, vram: "20GB", tdp: 315, bw: "800GB/s",  rt: "○", dlss: "FSR 3",  cospa: 0.322, badge: "コスパ◎",   badgeClass: "badge-green"  },
+  { name: "GeForce RTX 4070 Ti SUPER", maker: "NVIDIA", score: 26974, price: 79800, vram: "16GB", tdp: 285, bw: "672GB/s", rt: "◎", dlss: "DLSS 3", cospa: 0.338, badge: "コスパ◎", badgeClass: "badge-green" },
+  { name: "Radeon RX 9070",        maker: "AMD",    score: 25800, price:  79800, vram: "16GB", tdp: 220, bw: "576GB/s",  rt: "○", dlss: "FSR 4",  cospa: 0.323, badge: "",            badgeClass: "" },
+  { name: "GeForce RTX 4070 SUPER",maker: "NVIDIA", score: 21130, price:  59800, vram: "12GB", tdp: 220, bw: "504GB/s",  rt: "◎", dlss: "DLSS 3", cospa: 0.353, badge: "コスパ最強", badgeClass: "badge-green"  },
+  { name: "Radeon RX 7800 XT",    maker: "AMD",    score: 18649, price:  49800, vram: "16GB", tdp: 263, bw: "624GB/s",  rt: "○", dlss: "FSR 3",  cospa: 0.374, badge: "コスパ最強", badgeClass: "badge-green"  },
+  { name: "GeForce RTX 4070",      maker: "NVIDIA", score: 17021, price:  49800, vram: "12GB", tdp: 200, bw: "504GB/s",  rt: "◎", dlss: "DLSS 3", cospa: 0.342, badge: "",            badgeClass: "" },
+  { name: "GeForce RTX 4060 Ti",   maker: "NVIDIA", score: 14502, price:  44800, vram: "16GB", tdp: 160, bw: "288GB/s",  rt: "◎", dlss: "DLSS 3", cospa: 0.324, badge: "",            badgeClass: "" },
+  { name: "Radeon RX 7700 XT",    maker: "AMD",    score: 14825, price:  39800, vram: "12GB", tdp: 245, bw: "432GB/s",  rt: "○", dlss: "FSR 3",  cospa: 0.373, badge: "",            badgeClass: "" },
+  { name: "GeForce RTX 4060",      maker: "NVIDIA", score: 11043, price:  29800, vram:  "8GB", tdp: 115, bw: "272GB/s",  rt: "◎", dlss: "DLSS 3", cospa: 0.371, badge: "エントリー", badgeClass: "badge-blue"   },
 ];
 
 // ===== ホームのTOP5を動的更新 =====
@@ -1591,6 +1591,17 @@ function updateCompare() {
         </tr>`;
       }).join('')}
     </tbody>`;
+}
+
+// ===== GPU COMPARE SELECT 動的生成 =====
+function populateGpuSelects() {
+  const selA = document.getElementById('gpu-a-select');
+  const selB = document.getElementById('gpu-b-select');
+  if (!selA || !selB || !gpuData.length) return;
+  const opts = gpuData.map((g, i) => `<option value="${i}">${g.name}</option>`).join('');
+  selA.innerHTML = opts;
+  selB.innerHTML = opts;
+  if (selB.options.length > 1) selB.selectedIndex = 1;
 }
 
 // ===== GPU COMPARE =====
