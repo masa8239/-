@@ -1952,7 +1952,7 @@ async function loadSheet(url, isGpu) {
     const col = (candidates) => keys.find(k => candidates.some(c => k.toLowerCase().includes(c.toLowerCase())));
 
     const nameCol  = col(['CPU名','GPU名','名前','name']) || keys[0];
-    const scoreCol = col(['3DMark Time Spy','PassMark','3DMark','スコア','score','Score','TimeSpy','Time Spy']);
+    const scoreCol = col(['3DMark Time Spy','PassMark','3DMark','スコア','score','Score','TimeSpy','Time Spy','Cinebench','cinebench','R23','マルチ']) || keys.find(k => k !== nameCol);
     const priceCol = col(['価格','price','Price']);
     const tdpCol   = col(['TDP','tdp','消費電力']);
     const coreCol  = col(['コア数','コア','core']);
