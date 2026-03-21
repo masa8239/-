@@ -2003,6 +2003,15 @@ async function loadSheet(url, isGpu) {
     console.log(`✓ ${isGpu?'GPU':'CPU'} ${newData.length}件読み込み完了`);
   } catch(e) {
     console.warn(`${isGpu?'GPU':'CPU'} sheet load failed:`, e.message);
+    if (isGpu) {
+      if (!gpuData.length) { gpuData.push(...FALLBACK_GPU); window.maxGpuScore = Math.max(...gpuData.map(d=>d.score)); }
+      renderGpuTable();
+      updateGpuCompare();
+    } else {
+      if (!cpuData.length) { cpuData.push(...FALLBACK_CPU); window.maxCpuScore = Math.max(...cpuData.map(d=>d.score)); }
+      renderCpuTable();
+      updateCompare();
+    }
   }
 }
 
